@@ -12,15 +12,8 @@ Inputs:
       Raw.plot_projs_topomap
 
 Outputs:
+    - out_figs/projs_topomap.png: Projector topomap plot
     - product.json: Metadata about the plotted projectors
-
-Note: this app does not currently save the generated figure(s) to
-out_figs or build a product.json with an image entry - it never did,
-even before this migration (no out_figs dir was created, no savefig
-call existed). Persisting the plot depends on a design decision
-(single figure vs. a list when ch_type is a list) that's out of scope
-for a structure-only compliance pass; flagging here rather than
-guessing.
 """
 
 # Copyright (c) 2026 brainlife.io
@@ -36,13 +29,18 @@ import mne
 from brainlife_utils import (
     load_config,
     setup_matplotlib_backend,
+    ensure_output_dirs,
     create_product_json,
     add_info_to_product,
+    add_image_to_product,
     require_config_keys
 )
 
 # Set up matplotlib for headless execution
 setup_matplotlib_backend()
+
+# Ensure output directories exist
+ensure_output_dirs('out_figs')
 
 # Load configuration
 config = load_config()
@@ -52,7 +50,7 @@ data_file = config['mne']
 
 raw = mne.io.read_raw_fif(data_file, verbose=False)
 
-raw.plot_projs_topomap(ch_type=config['ch_type'],
+fig = raw.plot_projs_topomap(ch_type=config['ch_type'],
 sensors=config['sensors'],
 show_names=config['show_names'],
 contours=config['contours'],
@@ -70,7 +68,12 @@ colorbar=config['colorbar'],
 cbar_fmt=config['cbar_fmt'],
 units=config['units'])
 
+# == SAVE FIGURE ==
+fig_path = os.path.join('out_figs', 'projs_topomap.png')
+fig.savefig(fig_path)
+
 # == CREATE PRODUCT.JSON ==
 product_items = []
 add_info_to_product(product_items, 'Plotted projector topomaps', 'success')
+add_image_to_product(product_items, 'Projector topomaps', filepath=fig_path)
 create_product_json(product_items)
