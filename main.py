@@ -66,7 +66,8 @@ vlim=config['vlim'],
 cnorm=config['cnorm'],
 colorbar=config['colorbar'],
 cbar_fmt=config['cbar_fmt'],
-units=config['units'])
+units=config['units'],
+show=False)
 
 # == SAVE FIGURE ==
 fig_path = os.path.join('out_figs', 'projs_topomap.png')
