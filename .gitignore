@@ -1,0 +1,7 @@
+/config.json
+.gitignore
+*.html
+/out_dir*
+/__pycache__/*
+/product.json
+/out_figs*
